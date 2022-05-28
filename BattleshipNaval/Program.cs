@@ -6,22 +6,45 @@ namespace BattleshipNaval
     {
         static void Main(string[] args)
         {
+            List<string> listaDePosicoesPossiveisParaOJogador1 = new List<string>();
+            List<string> listaDePosicoesQueNaoPodemSerUsadasParaOJogador1 = new List<string>();
+            Dictionary<string, int> listaDePosicionamentosDeNaviosPossiveisParaOJogador1 = new Dictionary<string, int>();
+
+            List<string> listaDePosicoesPossiveisParaOJogador2 = new List<string>();
+            List<string> listaDePosicoesQueNaoPodemSerUsadasParaOJogador2 = new List<string>();
+            Dictionary<string, int> listaDePosicionamentosDeNaviosPossiveisParaOJogador2 = new Dictionary<string, int>();
+
+            GeraListaDePosicoesPossiveis(listaDePosicoesPossiveisParaOJogador1);
+            GeraListaDePosicionamentosDeNaviosPossiveis(listaDePosicionamentosDeNaviosPossiveisParaOJogador1);
+
+            GeraListaDePosicoesPossiveis(listaDePosicoesPossiveisParaOJogador2);
+            GeraListaDePosicionamentosDeNaviosPossiveis(listaDePosicionamentosDeNaviosPossiveisParaOJogador2);
+
             Dictionary<string, int> quantidadeDeNaviosDoJogador1 = InicializaQuantidadeDeNavios();
             Dictionary<string, int> quantidadeDeNaviosDoJogador2 = InicializaQuantidadeDeNavios();
 
             char[,] tabuleiroJogador1 = InicializaTabuleiro();
             char[,] tabuleiroJogador2 = InicializaTabuleiro();
 
-            int numeroDeNogadoresReaisNoJogo = PerguntaQuantosJogadoresReaisTemNoJogo();            
+            int numeroDeNogadoresReaisNoJogo = PerguntaQuantosJogadoresReaisTemNoJogo();
 
-            string nomeDoJogador1 = PerguntaNomeDoJogador(1);
-            string nomeDoJogador2 = PerguntaNomeDoJogador(2);
+            bool jogador1SeriaComputador = false, jogador2SeriaComputador = false;
+            if (numeroDeNogadoresReaisNoJogo == 0)
+                jogador1SeriaComputador = jogador2SeriaComputador = true;
+            if (numeroDeNogadoresReaisNoJogo == 1)
+                jogador2SeriaComputador = true;
 
-            ConfiguraJogador(tabuleiroJogador1, nomeDoJogador1, quantidadeDeNaviosDoJogador1);
-            ConfiguraJogador(tabuleiroJogador2, nomeDoJogador2, quantidadeDeNaviosDoJogador2);
+            string nomeDoJogador1 = PerguntaNomeDoJogador(1, jogador1SeriaComputador);
+            string nomeDoJogador2 = PerguntaNomeDoJogador(2, jogador2SeriaComputador);
 
-            var vencedor = Jogar(tabuleiroJogador1, tabuleiroJogador2, nomeDoJogador1, nomeDoJogador2);
-            
+            ConfiguraJogador(tabuleiroJogador1, nomeDoJogador1, quantidadeDeNaviosDoJogador1, jogador1SeriaComputador);
+            ConfiguraJogador(tabuleiroJogador2, nomeDoJogador2, quantidadeDeNaviosDoJogador2, jogador2SeriaComputador);
+
+            var vencedor = Jogar(tabuleiroJogador1, tabuleiroJogador2, nomeDoJogador1, nomeDoJogador2,
+                jogador1SeriaComputador, jogador2SeriaComputador,
+                listaDePosicoesPossiveisParaOJogador1, listaDePosicoesQueNaoPodemSerUsadasParaOJogador1,
+                listaDePosicoesPossiveisParaOJogador2, listaDePosicoesQueNaoPodemSerUsadasParaOJogador2);
+
             ExibeVencedor(vencedor);
         }
 
@@ -53,28 +76,18 @@ namespace BattleshipNaval
         static int PerguntaQuantosJogadoresReaisTemNoJogo()
         {
             int numeroDeJogadoresReaisTemNoJogo = 0;
-            
+
             do
             {
-                Console.WriteLine($"Quantos jogadores reais tem no jogo? 1 ou 2?");
+                Console.WriteLine($"Quantos jogadores reais tem no jogo? 0, 1 ou 2?");
                 var resultado = Console.ReadLine();
                 if (int.TryParse(resultado, out numeroDeJogadoresReaisTemNoJogo))
                 {
-                    if (numeroDeJogadoresReaisTemNoJogo == 1)
-                    {
-                        Console.WriteLine($"Em breve!!");
-                        Console.WriteLine($"Pressione qualquer tecla para continuar...");
-                        Console.ReadLine();
-                        Console.Clear();
-                        continue;
-                    }
-                    if (numeroDeJogadoresReaisTemNoJogo == 2)
-                    {
+                    if (numeroDeJogadoresReaisTemNoJogo == 0 || numeroDeJogadoresReaisTemNoJogo == 1 || numeroDeJogadoresReaisTemNoJogo == 2)
                         break;
-                    }
                 }
                 Console.WriteLine($"Número Inválido!");
-            } 
+            }
             while (true);
 
             Console.Clear();
@@ -82,8 +95,20 @@ namespace BattleshipNaval
             return numeroDeJogadoresReaisTemNoJogo;
         }
 
-        static string PerguntaNomeDoJogador(int numeroDoJogador)
+        static string PerguntaNomeDoJogador(int numeroDoJogador, bool computador)
         {
+            if (computador)
+            {
+                Random random = new Random();
+                Console.WriteLine($"Escolhendo nome do jogador {numeroDoJogador}...");
+                Thread.Sleep(2000);
+                var nomeDoComputador = $"Jogador-{random.Next(1, 500)}";
+                Console.WriteLine($"Nome escolhido pelo computador: {nomeDoComputador}");
+                Thread.Sleep(2000);
+                Console.Clear();
+                return $"Jogador-{random.Next(1, 500)}";
+            }
+
             string nome;
             do
             {
@@ -100,8 +125,73 @@ namespace BattleshipNaval
             return nome;
         }
 
-        static void ConfiguraJogador(char[,] tabuleiro, string nomeDoJogador, Dictionary<string, int> quantidadeDeNavios)
+        static void ConfiguraJogador(char[,] tabuleiro, string nomeDoJogador, Dictionary<string, int> quantidadeDeNavios, bool computador)
         {
+            if (computador)
+            {
+                Console.WriteLine($"{nomeDoJogador} posicionando navios...");
+
+                List<string> listaDePosicionamentosQueNaoPodemSerUsadas = new List<string>();
+                Dictionary<string, int> listaDePosicionamentosDeNaviosPossiveis = new Dictionary<string, int>();
+
+                GeraListaDePosicionamentosDeNaviosPossiveis(listaDePosicionamentosDeNaviosPossiveis);
+
+                int quantidade;
+
+                quantidade = quantidadeDeNavios["PS"];
+                for (int i = 0; i < quantidade; i++)
+                {
+                    do
+                    {
+                        var posicionamento = ObtemPosicionamentoDeNavioAleatorio(listaDePosicionamentosDeNaviosPossiveis, 5, listaDePosicionamentosQueNaoPodemSerUsadas);
+                        if (AdicionaNavio(tabuleiro, "PS", posicionamento))
+                            break;
+                    }
+                    while (true);
+                }
+
+                quantidade = quantidadeDeNavios["NT"];
+                for (int i = 0; i < quantidade; i++)
+                {
+                    do
+                    {
+                        var posicionamento = ObtemPosicionamentoDeNavioAleatorio(listaDePosicionamentosDeNaviosPossiveis, 4, listaDePosicionamentosQueNaoPodemSerUsadas);
+                        if (AdicionaNavio(tabuleiro, "NT", posicionamento))
+                            break;
+                    }
+                    while (true);
+                }
+
+                quantidade = quantidadeDeNavios["DS"];
+                for (int i = 0; i < quantidade; i++)
+                {
+                    do
+                    {
+                        var posicionamento = ObtemPosicionamentoDeNavioAleatorio(listaDePosicionamentosDeNaviosPossiveis, 3, listaDePosicionamentosQueNaoPodemSerUsadas);
+                        if (AdicionaNavio(tabuleiro, "DS", posicionamento))
+                            break;
+                    }
+                    while (true);
+                }
+
+                quantidade = quantidadeDeNavios["SB"];
+                for (int i = 0; i < quantidade; i++)
+                {
+                    do
+                    {
+                        var posicionamento = ObtemPosicionamentoDeNavioAleatorio(listaDePosicionamentosDeNaviosPossiveis, 2, listaDePosicionamentosQueNaoPodemSerUsadas);
+                        if (AdicionaNavio(tabuleiro, "SB", posicionamento))
+                            break;
+                    }
+                    while (true);
+                }
+
+                Thread.Sleep(5000);
+                Console.Clear();
+
+                return;
+            }
+
             do
             {
                 Console.WriteLine($"{nomeDoJogador}, posicione seus navios!");
@@ -273,7 +363,13 @@ namespace BattleshipNaval
             return quantidadeDeNavios.Values.Sum() != 0;
         }
 
-        static string Jogar(char[,] tabuleiroJogador1, char[,] tabuleiroJogador2, string nomeDoJogador1, string nomeDoJogador2)
+        static string Jogar(char[,] tabuleiroJogador1, char[,] tabuleiroJogador2, string nomeDoJogador1, string nomeDoJogador2,
+            bool jogador1SeriaComputador,
+            bool jogador2SeriaComputador,
+            List<string> listaDePosicoesPossiveisParaOJogador1,
+            List<string> listaDePosicoesQueNaoPodemSerUsadasParaOJogador1,
+            List<string> listaDePosicoesPossiveisParaOJogador2,
+            List<string> listaDePosicoesQueNaoPodemSerUsadasParaOJogador2)
         {
             Console.Clear();
             Console.WriteLine("Começar? Quando estiver pronto pressione qualquer tecla para continuar...");
@@ -285,12 +381,12 @@ namespace BattleshipNaval
             {
                 if (jogadorAtual == 1)
                 {
-                    JogadorJoga(tabuleiroJogador2, nomeDoJogador1);
+                    JogadorJoga(tabuleiroJogador2, nomeDoJogador1, jogador1SeriaComputador, listaDePosicoesPossiveisParaOJogador1, listaDePosicoesQueNaoPodemSerUsadasParaOJogador1);
                     jogadorAtual = 2;
                 }
                 else if (jogadorAtual == 2)
                 {
-                    JogadorJoga(tabuleiroJogador1, nomeDoJogador2);
+                    JogadorJoga(tabuleiroJogador1, nomeDoJogador2, jogador2SeriaComputador, listaDePosicoesPossiveisParaOJogador2, listaDePosicoesQueNaoPodemSerUsadasParaOJogador2);
                     jogadorAtual = 1;
                 }
             }
@@ -305,7 +401,9 @@ namespace BattleshipNaval
             return string.Empty;
         }
 
-        static void JogadorJoga(char[,] tabuleiro, string nomeDoJogador)
+        static void JogadorJoga(char[,] tabuleiro, string nomeDoJogador, bool computador,
+            List<string> listaDePosicoesPossiveis,
+            List<string> listaDePosicoesQueNaoPodemSerUsadas)
         {
             do
             {
@@ -315,15 +413,34 @@ namespace BattleshipNaval
 
                 Console.WriteLine(ImprimeTabuleiro(tabuleiro, true));
 
-                Console.WriteLine($"{nomeDoJogador}, dispare! Escolha a posição onde deseja atirar.");
-                var posicao = Console.ReadLine();
+                Console.WriteLine($"{nomeDoJogador}, dispare!");
+                string posicao;
+                if (computador)
+                {
+                    Thread.Sleep(2000);
+                    posicao = ObtemPosicaoAleatoria(listaDePosicoesPossiveis, listaDePosicoesQueNaoPodemSerUsadas);
+                    Console.WriteLine(posicao);
+                }
+                else
+                {
+                    Console.WriteLine("Escolha a posição onde deseja atirar.");
+                    posicao = Console.ReadLine();
+                }
+
                 var resultado = Dispara(tabuleiro, posicao);
 
                 if (resultado == 2)
                 {
                     Console.WriteLine("Posição não existe!!");
-                    Console.WriteLine("Pressione qualquer tecla para continuar...");
-                    Console.ReadLine();
+                    if (computador)
+                    {
+                        Thread.Sleep(2000);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Pressione qualquer tecla para continuar...");
+                        Console.ReadLine();
+                    }
                 }
                 else
                 {
@@ -337,9 +454,16 @@ namespace BattleshipNaval
                         Console.WriteLine("Acertou um navio!!");
                     }
 
-                    Console.WriteLine("Pressione qualquer tecla para continuar...");
-                    Console.ReadLine();
-                    
+                    if (computador)
+                    {
+                        Thread.Sleep(2000);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Pressione qualquer tecla para continuar...");
+                        Console.ReadLine();
+                    }
+
                     break;
                 }
             }
@@ -411,6 +535,106 @@ namespace BattleshipNaval
                 resultado += "   -----------------------------------------\r\n";
             }
             return resultado;
+        }
+
+        static void GeraListaDePosicoesPossiveis(List<string> listaDePosicoesPossiveis)
+        {
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    listaDePosicoesPossiveis.Add(((char)('A' + i)).ToString() + (j + 1).ToString());
+                }
+            }
+        }
+
+        static string ObtemPosicaoAleatoria(List<string> listaDePosicoesPossiveis, List<string> listaDePosicoesQueNaoDevemSerUsadas)
+        {
+            Random random = new Random();
+            List<string> listaDePosicionamentosPelaQuantidadeDePosicoes = new List<string>();
+
+            foreach (var posicionamento in listaDePosicoesPossiveis.ToList())
+            {
+                foreach (var posicionamentoQueNaoDeveSerUsado in listaDePosicoesQueNaoDevemSerUsadas)
+                {
+                    if (posicionamento == posicionamentoQueNaoDeveSerUsado)
+                    {
+                        listaDePosicoesPossiveis.Remove(posicionamento);
+                    }
+                }
+            }
+
+            var posicao = listaDePosicoesPossiveis[random.Next(0,
+                listaDePosicoesPossiveis.Count)];
+
+            listaDePosicoesQueNaoDevemSerUsadas.Add(posicao);
+
+            return posicao;
+        }
+
+        static string ObtemPosicionamentoDeNavioAleatorio(Dictionary<string, int> listaDePosicionamentosDeNaviosPossiveis, int quantidadeDePosicoes,
+            List<string> listaDePosiconamentoDeNaviosQueNaoDevemSerUsados)
+        {
+            Random random = new Random();
+            List<string> listaDePosicionamentosPelaQuantidadeDePosicoes = new List<string>();
+            foreach (var posicionamento in listaDePosicionamentosDeNaviosPossiveis)
+            {
+                if (posicionamento.Value == quantidadeDePosicoes)
+                    listaDePosicionamentosPelaQuantidadeDePosicoes.Add(posicionamento.Key);
+            }
+
+            foreach (var posicionamento in listaDePosicionamentosPelaQuantidadeDePosicoes.ToList())
+            {
+                foreach (var posicionamentoQueNaoDeveSerUsado in listaDePosiconamentoDeNaviosQueNaoDevemSerUsados)
+                {
+                    if (posicionamento == posicionamentoQueNaoDeveSerUsado)
+                    {
+                        listaDePosicionamentosPelaQuantidadeDePosicoes.Remove(posicionamento);
+                    }
+                }
+            }
+
+            var posicao = listaDePosicionamentosPelaQuantidadeDePosicoes[random.Next(0,
+                listaDePosicionamentosPelaQuantidadeDePosicoes.Count)];
+
+            listaDePosiconamentoDeNaviosQueNaoDevemSerUsados.Add(posicao);
+
+            return posicao;
+        }
+
+        static void GeraListaDePosicionamentosDeNaviosPossiveis(Dictionary<string, int> listaDePosicionamentosDeNaviosPossiveis)
+        {
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    for (int k = 2; k <= 5; k++)
+                    {
+                        string posicaoInicial = ((char)('A' + i)).ToString() + (j + 1).ToString();
+                        int linhaInicial, linhaFinal, colunaInicial, colunaFinal;
+                        if (ConvertePosicaoParaCoordenadas(posicaoInicial, out linhaInicial, out linhaFinal, out colunaInicial, out colunaFinal))
+                        {
+                            if (linhaInicial + k - 1 < 10)
+                            {
+                                linhaFinal = linhaInicial + k - 1;
+                                colunaFinal = colunaInicial;
+                                string posicaoFinal = ((char)('A' + colunaFinal)).ToString() + (linhaFinal + 1).ToString();
+                                listaDePosicionamentosDeNaviosPossiveis.Add(posicaoInicial + posicaoFinal, k);
+                            }
+
+                            if (colunaInicial + k - 1 < 10)
+                            {
+                                colunaFinal = colunaInicial + k - 1;
+                                linhaFinal = linhaInicial;
+                                string posicaoFinal = ((char)('A' + colunaFinal)).ToString() + (linhaFinal + 1).ToString();
+                                listaDePosicionamentosDeNaviosPossiveis.Add(posicaoInicial + posicaoFinal, k);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
