@@ -1,0 +1,15 @@
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\bin\Debug\net6.0\BattleshipNaval.exe
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\bin\Debug\net6.0\BattleshipNaval.deps.json
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\bin\Debug\net6.0\BattleshipNaval.runtimeconfig.json
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\bin\Debug\net6.0\BattleshipNaval.dll
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\bin\Debug\net6.0\BattleshipNaval.pdb
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\BattleshipNaval.csproj.AssemblyReference.cache
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\BattleshipNaval.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\BattleshipNaval.AssemblyInfoInputs.cache
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\BattleshipNaval.AssemblyInfo.cs
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\BattleshipNaval.csproj.CoreCompileInputs.cache
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\BattleshipNaval.dll
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\refint\BattleshipNaval.dll
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\BattleshipNaval.pdb
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\BattleshipNaval.genruntimeconfig.cache
+C:\Users\renato\workspace\BattleshipNaval\BattleshipNaval\obj\Debug\net6.0\ref\BattleshipNaval.dll
